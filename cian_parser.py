@@ -64,8 +64,11 @@ def get_price_area(soup, address, url):
     if len(prices) > 0:  
         for i in range(1, len(prices)):           
             area = prices[i].find_all('div', {'class': 'a10a3f92e9--area--TPGV8'})[0].text
+            print('in for; ', area) # TEST
             metr_price = prices[i].find_all('div', {'class': 'a10a3f92e9--price-of-meter--SE6dT'})[0].text
+            print('in for; ', metr_price) # TEST
             price = prices[i].find_all('div', {'class': 'a10a3f92e9--price--rz9MI'})[0].text
+            print('in for; ', price) # TEST
             dict_tz["address"] = adress
             dict_tz["area"] = area
             dict_tz["metr_price"] = metr_price
@@ -75,8 +78,17 @@ def get_price_area(soup, address, url):
             
     else: 
         area = soup.find_all('div', {'class': 'a10a3f92e9--info-value--bm3DC'})[0].text
+        print('in else; ', area) # TEST
         metr_price = soup.find_all('div', {'a10a3f92e9--price_per_meter--yfcbi a10a3f92e9--price_per_meter--commercial--ALuAy'})[0].text
-        price = soup.find_all('div', {'class': 'a10a3f92e9--value--wNns'})[0].text
+        print('in else; ', metr_price) # TEST
+
+        try:
+            price = soup.find_all('div', {'class': 'a10a3f92e9--value--wNns'})[0].text
+        except:
+            price = soup.find_all('div', {'class': 'a10a3f92e9--value--wNnsl'})[0].text
+
+        print('in else; ', price) # TEST
+
         dict_tz["address"] = adress
         dict_tz["area"] = area
         dict_tz["metr_price"] = metr_price
@@ -86,7 +98,9 @@ def get_price_area(soup, address, url):
         
     return all_trade
 
-regions_code_zian = {'01msc':1} # {'25ulan_ude':5026}
+regions_code_zian = {'26ulyanovsk': 5027}
+# {'35ufa': 176245, '71tumen': 5024}
+#{'01msc':1} # {'25ulan_ude':5026}
 
 cities = list(regions_code_zian.keys())
 cities.sort()
@@ -148,10 +162,14 @@ for city in cities:
             try:
                 address = get_adress(soup)
                 all_trade = get_price_area(soup, address, url)
+                print(all_trade.head()) # TEST
                 all_trade_points = all_trade_points.append(all_trade, ignore_index = True)
+                print(all_trade_points.head()) # TEST
             except (ValueError, IndexError) as e:
 #                 inp = input()
-                continue
+                print('has not parsed data from', url)
+                # break # TEST
+                # continue
             time.sleep(random.randrange(10,12))
 
         all_trade_points.to_csv("trade_1_" + city + ".csv", sep = ";", encoding='utf-8-sig')
